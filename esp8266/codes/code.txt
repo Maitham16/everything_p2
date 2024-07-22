@@ -1,0 +1,133 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266HTTPClient.h>
+#include <DHT.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+#include <DNSServer.h>
+
+#define DHTPIN D2
+#define DHTTYPE DHT22
+#define MQ135ANALOGPIN A0 // MQ135 Analog pin for CO2 reading
+#define MQ135DIGITALPIN D7 // MQ135 Digital pin for air quality level
+
+DHT dht(DHTPIN, DHTTYPE);
+
+const char* ssid = "";
+const char* password = "";
+const char* serverUrl = "http://193.168.173.216:5000/update_sensor_data";
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600, 60000);
+ESP8266WebServer server(80);
+DNSServer dnsServer;
+
+void setup() {
+  Serial.begin(115200);
+
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+  
+  unsigned long startTime = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000) { // Wait for 10 seconds
+    delay(500);
+    Serial.print(".");
+  }
+
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Failed to connect, switching to AP mode");
+    startAPMode();
+  } else {
+    Serial.println("\nWiFi connected");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+  }
+
+  dht.begin();
+  timeClient.begin();
+  pinMode(MQ135ANALOGPIN, INPUT);
+  pinMode(MQ135DIGITALPIN, INPUT);
+}
+
+void startAPMode() {
+  const char *apSSID = "ESP8266-Config";
+  WiFi.softAP(apSSID);
+  dnsServer.start(53, "*", WiFi.softAPIP());
+  
+  server.on("/", HTTP_GET, []() {
+    server.send(200, "text/html", configPageHTML());
+  });
+
+  server.on("/config", HTTP_POST, []() {
+    String ssid = server.arg("ssid");
+    String password = server.arg("password");
+    WiFi.begin(ssid.c_str(), password.c_str());
+    
+    unsigned long startTime = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - startTime < 20000) { // Wait for 20 seconds to connect
+      delay(500);
+      Serial.print(".");
+    }
+
+    if (WiFi.status() == WL_CONNECTED) {
+      server.send(200, "text/html", "<p>Connected! IP Address: " + WiFi.localIP().toString() + "</p><p>Reboot device to apply settings.</p>");
+      // Consider saving the new SSID and password to EEPROM here for persistence across reboots
+    } else {
+      server.send(200, "text/html", "<p>Failed to connect. Check your credentials.</p>");
+    }
+  });
+
+  server.begin();
+  Serial.println("AP Mode. Connect to Wi-Fi network " + String(apSSID) + " and access http://192.168.4.1 to configure Wi-Fi.");
+}
+
+String configPageHTML() {
+  return "<!DOCTYPE html><html><body><form action='/config' method='POST'>SSID:<input type='text' name='ssid'><br>Password:<input type='password' name='password'><br><input type='submit' value='Connect'></form></body></html>";
+}
+
+String getAirQualityLevel(int digitalValue) {
+  if (digitalValue == HIGH) return "High Quality";
+  return "Bad Quality"; // Example logic
+}
+
+void loop() {
+  dnsServer.processNextRequest(); // Only needed in AP mode
+  server.handleClient(); // Handle client requests in both AP and normal mode
+
+  static unsigned long lastTime = 0;
+  unsigned long currentTime = millis();
+  if (currentTime - lastTime > 30000) { // Proceed if 30 seconds have passed
+    lastTime = currentTime;
+    timeClient.update();
+    
+    if (WiFi.status() == WL_CONNECTED) {
+      float humidity = dht.readHumidity();
+      float temperature = dht.readTemperature();
+      int airQualityAnalog = analogRead(MQ135ANALOGPIN); // Read CO2 concentration (analog value)
+      int airQualityDigital = digitalRead(MQ135DIGITALPIN); // Read air quality level (digital value)
+      
+      // Placeholder for converting analog reading to CO2 value. Adjust according to your calibration.
+      int co2Value = airQualityAnalog; // Simplified for demonstration
+
+      String airQualityLevel = getAirQualityLevel(airQualityDigital);
+
+      String postData = "{\"temperature\":" + String(temperature) + ",\"humidity\":" + String(humidity) + ",\"co2Value\":" + String(co2Value) + ",\"airQuality\":\"" + airQualityLevel + "\",\"timestamp\":\"" + timeClient.getFormattedTime() + "\"}";
+      
+      WiFiClient client;
+      HTTPClient http;
+      http.begin(client, serverUrl);
+      http.addHeader("Content-Type", "application/json");
+      int httpResponseCode = http.POST(postData);
+
+      if (httpResponseCode > 0) {
+        String response = http.getString();
+        Serial.println(response);
+      } else {
+        Serial.print("Error on sending POST: ");
+        Serial.println(httpResponseCode);
+      }
+
+      http.end();
+    }
+  }
+}

@@ -1,0 +1,62 @@
+ERC report (Wed 17 Apr 2024 03:25:08 PM CEST, Encoding UTF8)
+
+***** Sheet /
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(148.59 mm, 58.42 mm): Symbol U2 [WeMos_D1_mini] Pin 13 [SDA/D2, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(148.59 mm, 55.88 mm): Symbol U2 [WeMos_D1_mini] Pin 14 [SCL/D1, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(148.59 mm, 50.80 mm): Symbol U2 [WeMos_D1_mini] Pin 2 [A0, Input, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(148.59 mm, 53.34 mm): Symbol U2 [WeMos_D1_mini] Pin 3 [D0, Bidirectional, Line]
+[pin_not_driven]: Input pin not driven by any Output pins
+    ; Severity: error
+    @(148.59 mm, 50.80 mm): Symbol U2 [WeMos_D1_mini] Pin 2 [A0, Input, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(184.15 mm, 49.53 mm): Symbol SW1 [SW_SPDT] Pin 2 [B, Passive, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; Severity: error
+    @(135.89 mm, 43.18 mm): Symbol U2 [WeMos_D1_mini] Pin 9 [5V, Power input, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(148.59 mm, 68.58 mm): Symbol U2 [WeMos_D1_mini] Pin 5 [MISO/D6, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(148.59 mm, 71.12 mm): Symbol U2 [WeMos_D1_mini] Pin 6 [MOSI/D7, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(148.59 mm, 73.66 mm): Symbol U2 [WeMos_D1_mini] Pin 7 [CS/D8, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(148.59 mm, 63.50 mm): Symbol U2 [WeMos_D1_mini] Pin 11 [D4, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(148.59 mm, 66.04 mm): Symbol U2 [WeMos_D1_mini] Pin 4 [SCK/D5, Bidirectional, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(128.27 mm, 60.96 mm): Symbol U2 [WeMos_D1_mini] Pin 15 [RX, Input, Line]
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(128.27 mm, 63.50 mm): Symbol U2 [WeMos_D1_mini] Pin 16 [TX, Output, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; Severity: error
+    @(138.43 mm, 83.82 mm): Symbol U2 [WeMos_D1_mini] Pin 10 [GND, Power input, Line]
+[pin_not_driven]: Input pin not driven by any Output pins
+    ; Severity: error
+    @(128.27 mm, 60.96 mm): Symbol U2 [WeMos_D1_mini] Pin 15 [RX, Input, Line]
+[no_connect_dangling]: Unconnected "no connection" flag
+    ; Severity: warning
+    @(133.35 mm, 52.07 mm): No Connect
+[pin_not_connected]: Pin not connected
+    ; Severity: error
+    @(128.27 mm, 53.34 mm): Symbol U2 [WeMos_D1_mini] Pin 1 [~{RST}, Input, Line]
+[pin_not_driven]: Input pin not driven by any Output pins
+    ; Severity: error
+    @(128.27 mm, 53.34 mm): Symbol U2 [WeMos_D1_mini] Pin 1 [~{RST}, Input, Line]
+
+ ** ERC messages: 19  Errors 18  Warnings 1

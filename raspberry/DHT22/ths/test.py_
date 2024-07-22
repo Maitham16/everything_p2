@@ -1,0 +1,47 @@
+import adafruit_dht
+import board
+from RPLCD.i2c import CharLCD
+from time import sleep
+
+# Initialize the LCD
+lcd = CharLCD('PCF8574', 0x27)
+
+# Initialize the DHT sensor
+dhtDevice = adafruit_dht.DHT22(board.D4)  # Replace 'D4' with your actual GPIO pin
+
+def read_sensor():
+    for _ in range(3):  # Try to read up to 3 times
+        try:
+            temperature = dhtDevice.temperature
+            humidity = dhtDevice.humidity
+            if humidity is not None and temperature is not None:
+                return temperature, humidity
+        except RuntimeError as error:
+            sleep(2)  # Wait a bit before retrying
+    return None, None
+
+try:
+    while True:
+        temperature, humidity = read_sensor()
+
+        # Clear the LCD
+        lcd.clear()
+
+        if temperature is not None and humidity is not None:
+            # Display temperature on the first line
+            lcd.cursor_pos = (0, 0)
+            lcd.write_string('Temp: {:.1f}C'.format(temperature))
+            
+            # Display humidity on the second line
+            lcd.cursor_pos = (1, 0)
+            lcd.write_string('Humidity: {:.1f}%'.format(humidity))
+        else:
+            # Display error message
+            lcd.write_string('Read error')
+
+        sleep(5)  # Wait for 5 seconds before next read
+
+except KeyboardInterrupt:
+    # Graceful shutdown on Ctrl+C
+    lcd.clear()
+    print("Script stopped by user.")
